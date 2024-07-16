@@ -28,35 +28,12 @@ import { Button } from "@/components/ui/button"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import { JSX, SVGProps } from "react"
+import Navbar from "./shared/Navbar"
 
 export function HaitianDiasporaConnect() {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="bg-primary text-primary-foreground py-4 px-6 shadow">
-        <div className="container mx-auto flex items-center justify-between">
-          <Link href="#" className="text-xl font-bold" prefetch={false}>
-            Haitian Diaspora Connect
-          </Link>
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link href="/forum" className="hover:underline" prefetch={false}>
-              Forum
-            </Link>
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Crowdfunding
-            </Link>
-            <Link href="#" className="hover:underline" prefetch={false}>
-              About
-            </Link>
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Contact
-            </Link>
-            <Button variant="secondary">Join</Button>
-          </nav>
-          <Button variant="default" className="md:hidden">
-            <MenuIcon className="h-6 w-6" />
-          </Button>
-        </div>
-      </header>
+      <Navbar />
       <main className="flex-1">
         <section className="bg-muted py-12 px-6">
           <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
