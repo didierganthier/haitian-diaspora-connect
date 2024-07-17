@@ -27,35 +27,12 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Label } from "@/components/ui/label"
 import { Input } from "@/components/ui/input"
+import Navbar from "./shared/Navbar"
 
 export function JoinComponent() {
   return (
     <div className="flex min-h-screen flex-col">
-      <header className="bg-primary text-primary-foreground py-4 px-6 shadow">
-        <div className="container mx-auto flex items-center justify-between">
-          <Link href="#" className="text-xl font-bold" prefetch={false}>
-            Haitian Diaspora Connect
-          </Link>
-          <nav className="hidden md:flex items-center space-x-6">
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Forum
-            </Link>
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Crowdfunding
-            </Link>
-            <Link href="#" className="hover:underline" prefetch={false}>
-              About
-            </Link>
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Contact
-            </Link>
-            <Button variant="secondary">Join</Button>
-          </nav>
-          <Button variant="icon" className="md:hidden">
-            <MenuIcon className="h-6 w-6" />
-          </Button>
-        </div>
-      </header>
+      <Navbar />
       <main className="flex-1">
         <section className="bg-muted py-12 px-6">
           <div className="container mx-auto max-w-md">
@@ -97,47 +74,5 @@ export function JoinComponent() {
         </div>
       </footer>
     </div>
-  )
-}
-
-function MenuIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <line x1="4" x2="20" y1="12" y2="12" />
-      <line x1="4" x2="20" y1="6" y2="6" />
-      <line x1="4" x2="20" y1="18" y2="18" />
-    </svg>
-  )
-}
-
-
-function XIcon(props) {
-  return (
-    <svg
-      {...props}
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    >
-      <path d="M18 6 6 18" />
-      <path d="m6 6 12 12" />
-    </svg>
   )
 }
