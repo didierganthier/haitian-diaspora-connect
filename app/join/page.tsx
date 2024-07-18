@@ -1,3 +1,4 @@
+"use client"
 import { JoinComponent } from '@/components/join-component'
 import React from 'react'
 
