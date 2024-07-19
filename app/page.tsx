@@ -1,8 +1,13 @@
+"use client";
 import { HaitianDiasporaConnect } from "@/components/haitian-diaspora-connect";
-import Image from "next/image";
+import { ToastContainer } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
 export default function Home() {
   return (
-    <HaitianDiasporaConnect />
+    <>
+      <HaitianDiasporaConnect />
+      <ToastContainer />
+    </>
   );
 }
