@@ -4,26 +4,48 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import Navbar from "./shared/Navbar";
-import { auth } from "@/lib/firebase"; // Adjust the path as necessary
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { auth, db } from "@/lib/firebase"; // Adjust the path as necessary
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { doc, setDoc } from "firebase/firestore";
+import { toast } from "react-toastify";
 
 export function JoinComponent() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: { preventDefault: () => void; }) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
 
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-      // Optionally, update the user's profile with their name
-      console.log("User signed up:", user);
+
+      // Save user to Firestore
+      await setDoc(doc(db, "users", user.uid), {
+        uid: user.uid,
+        name: name,
+        email: user.email,
+        verified: false,
+      }).then(() => async () => {
+        console.log("User added to Firestore");
+        await sendEmailVerification(user).then(() => {
+          console.log("Verification email sent");
+          toast.success("Account created successfully. Please check your email to verify your account.");
+        }).catch((error) => {
+          toast.error("Failed to send verification email: " + error.message);
+          console.error("Failed to send verification email: ", error);
+        });
+      }).catch((error) => {
+        toast.error("Failed to create account: " + error.message);
+        console.error("Failed to create account: ", error);
+      });
     } catch (error: any) {
       setError(error.message);
+      toast.error("Failed to sign up: " + error.message);
     }
   };
 
@@ -49,7 +71,7 @@ export function JoinComponent() {
               </div>
               {error && <p className="text-red-500">{error}</p>}
               <Button type="submit" className="w-full">
-                Join
+                {loading ? "Granting Access..." : "Join"}
               </Button>
             </form>
           </div>
