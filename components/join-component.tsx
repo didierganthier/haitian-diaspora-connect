@@ -8,6 +8,7 @@ import { auth, db } from "@/lib/firebase"; // Adjust the path as necessary
 import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 
 export function JoinComponent() {
   const [name, setName] = useState("");
@@ -16,15 +17,18 @@ export function JoinComponent() {
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  // router
+  const router = useRouter();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-  
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
-  
+
       // Save user to Firestore
       await setDoc(doc(db, "users", user.uid), {
         uid: user.uid,
@@ -32,19 +36,22 @@ export function JoinComponent() {
         email: user.email,
         verified: false,
       });
-  
+
       console.log("User added to Firestore");
-  
+
       // Send verification email
       await sendEmailVerification(user);
       console.log("Verification email sent");
       toast.success("Account created successfully. Please check your email to verify your account.");
+      setTimeout(() => {
+        router.push("/sign-in");
+      });
     } catch (error: any) {
       setError(error.message);
       toast.error("Failed to sign up: " + error.message);
       console.error("Failed to sign up: ", error);
     }
-  
+
     setLoading(false);
   };
 
@@ -55,7 +62,7 @@ export function JoinComponent() {
         <section className="bg-muted py-12 px-6">
           <div className="container mx-auto max-w-md">
             <h1 className="text-3xl font-bold mb-6">Join Haitian Diaspora Connect</h1>
-            <form className="space-y-4" onSubmit={(e) => handleSubmit(e)}>
+            <form className="space-y-4" onSubmit={handleSubmit}>
               <div>
                 <Label htmlFor="name">Name</Label>
                 <Input id="name" type="text" placeholder="Enter your name" value={name} onChange={(e) => setName(e.target.value)} />
