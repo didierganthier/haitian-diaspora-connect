@@ -8,79 +8,86 @@ import { auth } from "@/lib/firebase"; // Adjust the path as necessary
 import { signInWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { toast } from "react-toastify";
 import Navbar from "@/components/shared/Navbar";
+import { useRouter } from "next/navigation";
 
 const SignInComponent = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState(null);
+    const [loading, setLoading] = useState(false);
 
-  const handleSignIn = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setError(null);
-    setLoading(true);
+    // router
+    const router = useRouter();
 
-    try {
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      const user = userCredential.user;
+    const handleSignIn = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setError(null);
+        setLoading(true);
 
-      if (!user.emailVerified) {
-        toast.warn("Please verify your email before signing in.");
-        await sendEmailVerification(user);
-        toast.info("Verification email has been sent again.");
-      } else {
-        toast.success("You have successfully signed in!");
-      }
-    } catch (error: any) {
-      setError(error.message);
-      toast.error("Failed to sign in: " + error.message);
-    }
+        try {
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
+            const user = userCredential.user;
 
-    setLoading(false);
-  };
+            if (!user.emailVerified) {
+                toast.warn("Please verify your email before signing in.");
+                await sendEmailVerification(user);
+                toast.info("Verification email has been sent again.");
+            } else {
+                toast.success("You have successfully signed in!");
+                setTimeout(() => {
+                    router.push("/");
+                }, 2000);
+            }
+        } catch (error: any) {
+            setError(error.message);
+            toast.error("Failed to sign in: " + error.message);
+        }
 
-  return (
-    <div className="flex min-h-screen flex-col">
-      <Navbar />
-      <main className="flex-1">
-        <section className="bg-muted py-12 px-6">
-          <div className="container mx-auto max-w-md">
-            <h1 className="text-3xl font-bold mb-6">Sign In to Haitian Diaspora Connect</h1>
-            <form className="space-y-4" onSubmit={handleSignIn}>
-              <div>
-                <Label htmlFor="email">Email</Label>
-                <Input id="email" type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
-              </div>
-              <div>
-                <Label htmlFor="password">Password</Label>
-                <Input id="password" type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} />
-              </div>
-              {error && <p className="text-red-500">{error}</p>}
-              <Button type="submit" className="w-full">
-                {loading ? "Signing In..." : "Sign In"}
-              </Button>
-            </form>
-          </div>
-        </section>
-      </main>
-      <footer className="bg-primary text-primary-foreground py-6 px-6">
-        <div className="container mx-auto flex items-center justify-between">
-          <p className="text-sm">&copy; 2023 Haitian Diaspora Connect</p>
-          <div className="flex items-center space-x-4">
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Privacy
-            </Link>
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Terms
-            </Link>
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Contact
-            </Link>
-          </div>
+        setLoading(false);
+    };
+
+    return (
+        <div className="flex min-h-screen flex-col">
+            <Navbar />
+            <main className="flex-1">
+                <section className="bg-muted py-12 px-6">
+                    <div className="container mx-auto max-w-md">
+                        <h1 className="text-3xl font-bold mb-6">Sign In to Haitian Diaspora Connect</h1>
+                        <form className="space-y-4" onSubmit={handleSignIn}>
+                            <div>
+                                <Label htmlFor="email">Email</Label>
+                                <Input id="email" type="email" placeholder="Enter your email" value={email} onChange={(e) => setEmail(e.target.value)} />
+                            </div>
+                            <div>
+                                <Label htmlFor="password">Password</Label>
+                                <Input id="password" type="password" placeholder="Enter your password" value={password} onChange={(e) => setPassword(e.target.value)} />
+                            </div>
+                            {error && <p className="text-red-500">{error}</p>}
+                            <Button type="submit" className="w-full">
+                                {loading ? "Signing In..." : "Sign In"}
+                            </Button>
+                        </form>
+                    </div>
+                </section>
+            </main>
+            <footer className="bg-primary text-primary-foreground py-6 px-6">
+                <div className="container mx-auto flex items-center justify-between">
+                    <p className="text-sm">&copy; 2023 Haitian Diaspora Connect</p>
+                    <div className="flex items-center space-x-4">
+                        <Link href="#" className="hover:underline" prefetch={false}>
+                            Privacy
+                        </Link>
+                        <Link href="#" className="hover:underline" prefetch={false}>
+                            Terms
+                        </Link>
+                        <Link href="#" className="hover:underline" prefetch={false}>
+                            Contact
+                        </Link>
+                    </div>
+                </div>
+            </footer>
         </div>
-      </footer>
-    </div>
-  );
+    );
 }
 
 export default SignInComponent;
