@@ -1,7 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
-import { collection, getDocs, addDoc, serverTimestamp, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, onSnapshot, doc, updateDoc, increment } from "firebase/firestore";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -23,17 +24,18 @@ export function ForumComponent() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [user, setUser] = useState(null);
+  const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser: any) => {
-      setUser(currentUser);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser as any);
     });
 
     return () => unsubscribe();
   }, []);
 
   useEffect(() => {
-    const fetchDiscussions = async () => {
+    const fetchDiscussions = () => {
       const discussionsCollection = collection(db, "forumDiscussions");
       onSnapshot(discussionsCollection, (snapshot) => {
         const discussionList = snapshot.docs.map((doc) => ({
@@ -52,26 +54,30 @@ export function ForumComponent() {
       await addDoc(collection(db, "forumDiscussions"), {
         title,
         content,
-        authorId: (user as User).uid ?? 'anonymous',
-        authorName: (user as User).displayName ?? 'Anonymous',
+        authorId: (user as User).uid,
+        authorName:  (user as User).displayName ?? 'Anonymous',
         authorEmail: (user as User).email ?? 'anonymous',
         authorProfilePicture: (user as User).photoURL ?? null,
         createdAt: serverTimestamp(),
+        likes: 0,
       });
     } else {
-      await addDoc(collection(db, "forumDiscussions"), {
-        title,
-        content,
-        authorId: 'anonymous',
-        authorName: 'Anonymous',
-        authorEmail: 'anonymous',
-        authorProfilePicture: null,
-        createdAt: serverTimestamp(),
-      });
+      toast.error("You must be logged in to post a discussion.");
     }
     setTitle("");
     setContent("");
     toast.success("Discussion posted successfully!");
+  };
+
+  const handleLike = async (id: string) => {
+    const docRef = doc(db, "forumDiscussions", id);
+    await updateDoc(docRef, {
+      likes: increment(1)
+    });
+  };
+
+  const navigateToComments = (id: string) => {
+    router.push(`forum/${id}`);
   };
 
   return (
@@ -106,7 +112,7 @@ export function ForumComponent() {
             <h2 className="text-2xl font-bold mb-6">Latest Forum Discussions</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {discussions.length > 0 ? (
-                discussions.map((discussion: any) => (
+                discussions.map((discussion: { id: string; title: string; content: string; authorName: string; authorEmail: string; authorProfilePicture: string; createdAt: any; likes: number }) => (
                   <Card key={discussion.id}>
                     <CardHeader>
                       <CardTitle>{discussion.title}</CardTitle>
@@ -131,12 +137,13 @@ export function ForumComponent() {
                     </CardContent>
                     <CardFooter>
                       <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" onClick={() => navigateToComments(discussion.id)}>
                           <MessageCircleIcon className="h-5 w-5" />
                         </Button>
-                        <Button variant="ghost" size="icon">
+                        <Button variant="ghost" size="icon" onClick={() => handleLike(discussion.id)}>
                           <HeartIcon className="h-5 w-5" />
                         </Button>
+                        <span>{discussion.likes}</span>
                         <Button variant="ghost" size="icon">
                           <ShareIcon className="h-5 w-5" />
                         </Button>
