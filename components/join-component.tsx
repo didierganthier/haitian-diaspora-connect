@@ -5,10 +5,12 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import Navbar from "./shared/Navbar";
 import { auth, db } from "@/lib/firebase"; // Adjust the path as necessary
-import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification, updateProfile } from "firebase/auth";
 import { doc, setDoc } from "firebase/firestore";
 import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
+import { profile } from "console";
+import getAvatarUrl from "@/helpers/getAvatarUrl";
 
 export function JoinComponent() {
   const [name, setName] = useState("");
@@ -34,7 +36,14 @@ export function JoinComponent() {
         uid: user.uid,
         name: name,
         email: user.email,
+        profilePicture: user.photoURL || getAvatarUrl(user.email!!),
         verified: false,
+      });
+
+      // Set display name
+      await updateProfile(user, {
+        displayName: name,
+        photoURL: user.photoURL || getAvatarUrl(user.email!!),
       });
 
       console.log("User added to Firestore");

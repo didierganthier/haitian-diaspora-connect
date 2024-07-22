@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import MenuIcon from './icons/MenuIcon';
 import { auth } from "@/lib/firebase"; // Adjust the path as necessary
 import { onAuthStateChanged } from "firebase/auth";
+import getAvatarUrl from '@/helpers/getAvatarUrl';
 
 const Navbar = () => {
   const [user, setUser] = useState(null as any);
@@ -20,11 +21,6 @@ const Navbar = () => {
     return () => unsubscribe();
   }, []);
 
-  // Generate avatar URL
-  const getAvatarUrl = (email: string) => {
-    const emailHash = btoa(email).replace(/=+$/, ''); // Base64 encode email and remove padding
-    return `https://api.dicebear.com/9.x/bottts/svg?seed=${emailHash}&r=50&size=80`;
-  };
 
   return (
     <header className="bg-primary text-primary-foreground py-4 px-6 shadow">
