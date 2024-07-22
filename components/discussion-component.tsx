@@ -17,6 +17,7 @@ import { User, onAuthStateChanged } from "firebase/auth";
 import { toast } from "react-toastify";
 import fetchUserData from "@/utils/fetchUserData";
 import Footer from "./shared/Footer";
+import DiscussionCard from "./shared/DiscussionCard";
 
 
 export default function DiscussionPage() {
@@ -81,7 +82,7 @@ export default function DiscussionPage() {
         setCommentContent("");
     };
 
-    const getProfilePicture = (authorId: string) => {
+    const getUserData = (authorId: string) => {
         fetchUserData(authorId).then((userDataLocal) => {
             console.log(userDataLocal!.profilePicture);
             setUserData(userDataLocal);
@@ -90,7 +91,7 @@ export default function DiscussionPage() {
 
     useEffect(() => {
         if (discussion) {
-            getProfilePicture(discussion.authorId);
+            getUserData(discussion.authorId);
         }
     }, [discussion]);
 
@@ -101,35 +102,7 @@ export default function DiscussionPage() {
                 <section className="py-12 px-6">
                     <div className="container mx-auto">
                         {discussion ? (
-                            <Card>
-                                <CardHeader>
-                                    <CardTitle>{discussion.title}</CardTitle>
-                                    <CardDescription>{discussion.content}</CardDescription>
-                                </CardHeader>
-                                <CardContent>
-                                    <div className="flex items-center space-x-2 mb-2">
-                                        <Avatar>
-                                            {userData ? (
-                                                <AvatarImage src={userData.profilePicture ?? 'https://api.dicebear.com/8.x/bottts/svg?seed=ZGlkaWVyZ2FudGhpZXJwZXJhbkBnbWFpbC5jb20&r=50&size=80'} />
-                                            ) : (
-                                                <AvatarFallback>
-                                                    <Initials name={discussion.authorId} />
-                                                </AvatarFallback>
-                                            )}
-                                        </Avatar>
-                                        <div>
-                                            {userData ? (
-                                                <p className="font-medium">{userData.name}</p>
-                                            ) : (
-                                                <p className="font-medium">Getting user data...</p>
-                                            )}
-                                            <p className="text-muted-foreground text-sm">
-                                                <TimeAgo date={discussion.createdAt.toDate()} />
-                                            </p>
-                                        </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
+                            <DiscussionCard discussion={discussion} userData={userData} />
                         ) : (
                             <p>Loading...</p>
                         )}
