@@ -15,23 +15,26 @@ import Initials from "./shared/Initials";
 import { useParams } from "next/navigation";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { toast } from "react-toastify";
+import fetchUserData from "@/utils/fetchUserData";
+import Footer from "./shared/Footer";
 
 
 export default function DiscussionPage() {
     const [discussion, setDiscussion] = useState<any>(null);
     const [comments, setComments] = useState([]);
     const [commentContent, setCommentContent] = useState("");
-    const [user, setUser] = useState(null);
+    const [currentUser, setCurrentUser] = useState(null);
+    const [userData, setUserData] = useState<any>(null);
     const params = useParams();
     const id = params.id;
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-          setUser(currentUser as any);
+            setCurrentUser(currentUser as any);
         });
-    
+
         return () => unsubscribe();
-      }, []);
+    }, []);
 
 
     useEffect(() => {
@@ -65,18 +68,31 @@ export default function DiscussionPage() {
 
     const handlePostComment = async (e: React.FormEvent) => {
         e.preventDefault();
-        if(user) {
-        await addDoc(collection(db, "forumDiscussions", id as string, "comments"), {
-            content: commentContent,
-            authorId: (user as User).uid,
-            createdAt: serverTimestamp(),
-        });
-        toast.success("Comment posted successfully!");
-    } else {
-        toast.error("You must be logged in to post a comment");
-    }
+        if (currentUser) {
+            await addDoc(collection(db, "forumDiscussions", id as string, "comments"), {
+                content: commentContent,
+                authorId: (currentUser as User).uid,
+                createdAt: serverTimestamp(),
+            });
+            toast.success("Comment posted successfully!");
+        } else {
+            toast.error("You must be logged in to post a comment");
+        }
         setCommentContent("");
     };
+
+    const getProfilePicture = (authorId: string) => {
+        fetchUserData(authorId).then((userDataLocal) => {
+            console.log(userDataLocal!.profilePicture);
+            setUserData(userDataLocal);
+        });
+    }
+
+    useEffect(() => {
+        if (discussion) {
+            getProfilePicture(discussion.authorId);
+        }
+    }, [discussion]);
 
     return (
         <div className="flex min-h-screen flex-col">
@@ -93,13 +109,20 @@ export default function DiscussionPage() {
                                 <CardContent>
                                     <div className="flex items-center space-x-2 mb-2">
                                         <Avatar>
-                                            <AvatarImage src={discussion.authorProfilePicture} />
-                                            <AvatarFallback>
-                                                <Initials name={discussion.authorName} />
-                                            </AvatarFallback>
+                                            {userData ? (
+                                                <AvatarImage src={userData.profilePicture ?? 'https://api.dicebear.com/8.x/bottts/svg?seed=ZGlkaWVyZ2FudGhpZXJwZXJhbkBnbWFpbC5jb20&r=50&size=80'} />
+                                            ) : (
+                                                <AvatarFallback>
+                                                    <Initials name={discussion.authorId} />
+                                                </AvatarFallback>
+                                            )}
                                         </Avatar>
                                         <div>
-                                            <p className="font-medium">{discussion.authorName}</p>
+                                            {userData ? (
+                                                <p className="font-medium">{userData.name}</p>
+                                            ) : (
+                                                <p className="font-medium">Getting user data...</p>
+                                            )}
                                             <p className="text-muted-foreground text-sm">
                                                 <TimeAgo date={discussion.createdAt.toDate()} />
                                             </p>
@@ -149,22 +172,7 @@ export default function DiscussionPage() {
                     </div>
                 </section>
             </main>
-            <footer className="bg-primary text-primary-foreground py-6 px-6">
-                <div className="container mx-auto flex items-center justify-between">
-                    <p className="text-sm">&copy; 2023 Haitian Diaspora Connect</p>
-                    <div className="flex items-center space-x-4">
-                        <Link href="#" className="hover:underline" prefetch={false}>
-                            Privacy
-                        </Link>
-                        <Link href="#" className="hover:underline" prefetch={false}>
-                            Terms
-                        </Link>
-                        <Link href="#" className="hover:underline" prefetch={false}>
-                            Contact
-                        </Link>
-                    </div>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }

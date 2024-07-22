@@ -49,11 +49,13 @@ const Navbar = () => {
             </Button>
           ) : (
             <div className="flex items-center space-x-4">
-              <img
-                src={getAvatarUrl(user.email)}
-                alt="User Avatar"
-                className="w-8 h-8 rounded-full"
-              />
+              <Link href="/profile" className="hover:underline" prefetch={false}>
+                <img
+                  src={getAvatarUrl(user.email)}
+                  alt="User Avatar"
+                  className="w-8 h-8 rounded-full"
+                />
+              </Link>
               {/* <span>{user.displayName || user.email}</span> */}
             </div>
           )}

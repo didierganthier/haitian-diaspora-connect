@@ -55,9 +55,6 @@ export function ForumComponent() {
         title,
         content,
         authorId: (user as User).uid,
-        authorName:  (user as User).displayName ?? 'Anonymous',
-        authorEmail: (user as User).email ?? 'anonymous',
-        authorProfilePicture: (user as User).photoURL ?? null,
         createdAt: serverTimestamp(),
         likes: 0,
       });
