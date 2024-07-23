@@ -12,6 +12,7 @@ import { Textarea } from './ui/textarea';
 import { Input } from './ui/input';
 import Footer from './shared/Footer';
 import fetchUserData from '@/utils/fetchUserData';
+import { useRouter } from 'next/navigation';
 
 
 export function ForumComponent() {
@@ -20,6 +21,7 @@ export function ForumComponent() {
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
   const [user, setUser] = useState<any>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -65,25 +67,15 @@ export function ForumComponent() {
         title,
         content,
         authorId: user.uid ?? 'anonymous',
-        authorName: user.displayName ?? 'Anonymous',
-        authorEmail: user.email ?? 'anonymous',
-        authorProfilePicture: user.photoURL ?? null,
         createdAt: serverTimestamp(),
       });
+      toast.success("Discussion posted successfully!");
     } else {
-      await addDoc(collection(db, "forumDiscussions"), {
-        title,
-        content,
-        authorId: 'anonymous',
-        authorName: 'Anonymous',
-        authorEmail: 'anonymous',
-        authorProfilePicture: null,
-        createdAt: serverTimestamp(),
-      });
+      toast.error("You must be logged in to post a discussion.");
+      router.push('/sign-in');
     }
     setTitle("");
     setContent("");
-    toast.success("Discussion posted successfully!");
   };
 
   return (
