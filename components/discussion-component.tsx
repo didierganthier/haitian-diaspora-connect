@@ -18,6 +18,7 @@ import { toast } from "react-toastify";
 import fetchUserData from "@/utils/fetchUserData";
 import Footer from "./shared/Footer";
 import DiscussionCard from "./shared/DiscussionCard";
+import CommentCard from "./shared/CommentCard";
 
 
 export default function DiscussionPage() {
@@ -73,6 +74,7 @@ export default function DiscussionPage() {
             await addDoc(collection(db, "forumDiscussions", id as string, "comments"), {
                 content: commentContent,
                 authorId: (currentUser as User).uid,
+                isDeleted: false,
                 createdAt: serverTimestamp(),
             });
             toast.success("Comment posted successfully!");
@@ -102,7 +104,7 @@ export default function DiscussionPage() {
                 <section className="py-12 px-6">
                     <div className="container mx-auto">
                         {discussion ? (
-                            <DiscussionCard discussion={discussion} userData={userData} detailsScreen={true}/>
+                            <DiscussionCard discussion={discussion} userData={userData} detailsScreen={true} />
                         ) : (
                             <p>Loading...</p>
                         )}
@@ -111,14 +113,7 @@ export default function DiscussionPage() {
                             <div className="space-y-4">
                                 {comments.length > 0 ? (
                                     comments.map((comment: { id: string; content: string; createdAt: any }) => (
-                                        <Card key={comment.id}>
-                                            <CardContent>
-                                                <p>{comment.content}</p>
-                                                <p className="text-muted-foreground text-sm">
-                                                    <TimeAgo date={comment.createdAt.toDate()} />
-                                                </p>
-                                            </CardContent>
-                                        </Card>
+                                        <CommentCard key={comment.id} comment={comment} discussionId={id}/>
                                     ))
                                 ) : (
                                     <p>No comments yet. Be the first to comment!</p>
