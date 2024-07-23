@@ -14,50 +14,50 @@ import { User, onAuthStateChanged } from 'firebase/auth';
 import { toast } from 'react-toastify';
 
 
-const DiscussionCard = ({ discussion, userData }: any) => {
+const DiscussionCard = ({ discussion, userData, detailsScreen = false }: any) => {
 
     const [user, setUser] = useState<User>();
     const router = useRouter();
-  
+
     useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-        setUser(currentUser as any);
-      });
-  
-      return () => unsubscribe();
+        const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+            setUser(currentUser as any);
+        });
+
+        return () => unsubscribe();
     }, []);
 
     const handleLike = async (id: string, user: User) => {
         if (!user) {
-          return;
+            return;
         }
-        
+
         const docRef = doc(db, "forumDiscussions", id);
         const docSnapshot = await getDoc(docRef);
         if (docSnapshot.exists()) {
-          const discussionData = docSnapshot.data();
-          const likes = discussionData.likes || [];
-      
-          if (!likes.includes(user.uid)) {
-            await updateDoc(docRef, {
-              likes: [...likes, user.uid],
-            });
-            toast.success("Liked post!");
-          } else {
-            const updatedLikes = likes.filter((like: string) => like !== user.uid);
-            await updateDoc(docRef, {
-              likes: updatedLikes,
-            });
-            toast.info("You've unliked the post!");
-          }
-        }
-      };
-    
-      const navigateToComments = (id: string) => {
-        router.push(`forum/${id}`);
-      };
+            const discussionData = docSnapshot.data();
+            const likes = discussionData.likes || [];
 
-      const likedByUser = discussion.likes.includes(user?.uid!!);
+            if (!likes.includes(user.uid)) {
+                await updateDoc(docRef, {
+                    likes: [...likes, user.uid],
+                });
+                toast.success("Liked post!");
+            } else {
+                const updatedLikes = likes.filter((like: string) => like !== user.uid);
+                await updateDoc(docRef, {
+                    likes: updatedLikes,
+                });
+                toast.info("You've unliked the post!");
+            }
+        }
+    };
+
+    const navigateToComments = (id: string) => {
+        router.push(`forum/${id}`);
+    };
+
+    const likedByUser = discussion.likes.includes(user?.uid!!);
 
     return (
         <Card>
@@ -90,11 +90,13 @@ const DiscussionCard = ({ discussion, userData }: any) => {
             </CardContent>
             <CardFooter>
                 <div className="flex items-center space-x-2">
-                    <Button variant="ghost" size="icon" onClick={() => navigateToComments(discussion.id)}>
-                        <MessageCircleIcon className="h-5 w-5" />
-                    </Button>
+                    {!detailsScreen && (
+                        <Button variant="ghost" size="icon" onClick={() => navigateToComments(discussion.id)}>
+                            <MessageCircleIcon className="h-5 w-5" />
+                        </Button>
+                    )}
                     <Button variant="ghost" size="icon" onClick={() => handleLike(discussion.id, user!!)}>
-                        <HeartIcon className="h-5 w-5" isLiked={likedByUser}/>
+                        <HeartIcon className="h-5 w-5" isLiked={likedByUser} />
                     </Button>
                     <span>{discussion.likes.length}</span>
                     <Button variant="ghost" size="icon">

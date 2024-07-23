@@ -102,7 +102,7 @@ export default function DiscussionPage() {
                 <section className="py-12 px-6">
                     <div className="container mx-auto">
                         {discussion ? (
-                            <DiscussionCard discussion={discussion} userData={userData} />
+                            <DiscussionCard discussion={discussion} userData={userData} detailsScreen={true}/>
                         ) : (
                             <p>Loading...</p>
                         )}
