@@ -66,7 +66,8 @@ export function ForumComponent() {
       await addDoc(collection(db, "forumDiscussions"), {
         title,
         content,
-        authorId: user.uid ?? 'anonymous',
+        authorId: user.uid,
+        likes: [],
         createdAt: serverTimestamp(),
       });
       toast.success("Discussion posted successfully!");

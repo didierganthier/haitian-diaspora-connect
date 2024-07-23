@@ -105,7 +105,11 @@ const DiscussionCard = ({ discussion, userData, detailsScreen = false }: any) =>
                             <p className="font-medium">Getting user data...</p>
                         )}
                         <p className="text-muted-foreground text-sm">
-                            <TimeAgo date={discussion.createdAt.toDate()} />
+                            {discussion.createdAt ? (
+                                <TimeAgo date={discussion.createdAt.toDate()} />
+                            ) : (
+                                "Getting time..."
+                            )}
                         </p>
                     </div>
                 </div>
