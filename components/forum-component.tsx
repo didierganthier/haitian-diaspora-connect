@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { collection, getDocs, addDoc, serverTimestamp, onSnapshot, doc, getDoc } from "firebase/firestore";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { Input } from './ui/input';
 import Footer from './shared/Footer';
 import fetchUserData from '@/utils/fetchUserData';
 import { useRouter } from 'next/navigation';
-
+import { motion } from 'framer-motion';
 
 export function ForumComponent() {
   const [discussions, setDiscussions] = useState([]);
@@ -22,6 +22,7 @@ export function ForumComponent() {
   const [content, setContent] = useState("");
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
+  const newDiscussionRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -43,9 +44,7 @@ export function ForumComponent() {
           id: doc.id,
           ...doc.data(),
         }));
-        // filter where isDeleted is false
-        setDiscussions(discussionList as any)
-
+        setDiscussions(discussionList as any);
         
         // Fetch user data for each discussion
         const userDataPromises = discussionList.map((discussion: any) => fetchUserData(discussion.authorId));
@@ -82,6 +81,12 @@ export function ForumComponent() {
     setContent("");
   };
 
+  const scrollToNewDiscussion = () => {
+    if (newDiscussionRef.current) {
+      newDiscussionRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
@@ -94,7 +99,7 @@ export function ForumComponent() {
                 Discuss important issues, share experiences, and connect with others in the Haitian diaspora.
               </p>
               <div className="flex space-x-4">
-                <Button>Join the Forum</Button>
+                <Button onClick={scrollToNewDiscussion}>Join the Forum</Button>
                 <Button variant="secondary">Start a Fundraiser</Button>
               </div>
             </div>
@@ -132,7 +137,7 @@ export function ForumComponent() {
             <h2 className="text-2xl font-bold mb-6">Start a New Discussion</h2>
             <div className="max-w-2xl mx-auto">
               <form className="space-y-4" onSubmit={handlePostDiscussion}>
-                <div>
+                <div ref={newDiscussionRef}>
                   <Label htmlFor="title">Title</Label>
                   <Input id="title" placeholder="Enter a title for your discussion" value={title} onChange={(e: any) => setTitle(e.target.value)} />
                 </div>
