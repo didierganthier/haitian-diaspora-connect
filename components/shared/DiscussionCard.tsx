@@ -57,6 +57,28 @@ const DiscussionCard = ({ discussion, userData, detailsScreen = false }: any) =>
         router.push(`forum/${id}`);
     };
 
+    const handleShare = () => {
+        const shareData = {
+            title: discussion.title,
+            text: discussion.content,
+            url: window.location.href,
+        };
+
+        if (navigator.share) {
+            navigator.share(shareData).then(() => {
+                toast.success("Discussion shared successfully!");
+            }).catch((error) => {
+                toast.error("Error sharing discussion: " + error);
+            });
+        } else {
+            navigator.clipboard.writeText(shareData.url).then(() => {
+                toast.success("Link copied to clipboard!");
+            }).catch((error) => {
+                toast.error("Failed to copy link: " + error);
+            });
+        }
+    };
+
     const likedByUser = discussion.likes.includes(user?.uid!!);
 
     return (
@@ -99,7 +121,7 @@ const DiscussionCard = ({ discussion, userData, detailsScreen = false }: any) =>
                         <HeartIcon className="h-5 w-5" isLiked={likedByUser} />
                     </Button>
                     <span>{discussion.likes.length}</span>
-                    <Button variant="ghost" size="icon">
+                    <Button variant="ghost" size="icon" onClick={handleShare}>
                         <ShareIcon className="h-5 w-5" />
                     </Button>
                 </div>
