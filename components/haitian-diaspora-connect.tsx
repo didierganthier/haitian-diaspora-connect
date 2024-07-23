@@ -9,11 +9,14 @@ import MessageCircleIcon from "./shared/icons/MessageCircleIcon";
 import HeartIcon from "./shared/icons/HeartIcon";
 import ShareIcon from "./shared/icons/ShareIcon";
 import { db } from "@/lib/firebase"; // Adjust the path as necessary
-import { collection, getDocs } from "firebase/firestore";
+import { collection, getDocs, onSnapshot } from "firebase/firestore";
+import DiscussionCard from './shared/DiscussionCard';
+import fetchUserData from '@/utils/fetchUserData';
 
 export function HaitianDiasporaConnect() {
   const [forumDiscussions, setForumDiscussions] = useState([]);
   const [crowdfundingInitiatives, setCrowdfundingInitiatives] = useState([]);
+  const [userDatas, setUserDatas] = useState<any>({});
   const [loading, setLoading] = useState(true);
  
   useEffect(() => {
@@ -35,6 +38,32 @@ export function HaitianDiasporaConnect() {
     fetchCrowdfundingInitiatives();
     setLoading(false);
   }, []);
+
+  useEffect(() => {
+    const fetchDiscussions = async () => {
+      const discussionsCollection = collection(db, "forumDiscussions");
+      onSnapshot(discussionsCollection, async (snapshot) => {
+        const discussionList = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        setForumDiscussions(discussionList as any);
+        
+        // Fetch user data for each discussion
+        const userDataPromises = discussionList.map((discussion: any) => fetchUserData(discussion.authorId));
+        const userDataResults = await Promise.all(userDataPromises);
+        
+        const userDataMap = {};
+        userDataResults.forEach((userData: any, index: number) => {
+          (userDataMap as any)[(discussionList[index] as any).authorId] = userData;
+        });
+        
+        setUserDatas(userDataMap);
+      });
+    };
+    fetchDiscussions();
+  }, []);
+  
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -74,38 +103,11 @@ export function HaitianDiasporaConnect() {
                 <p>No discussions available</p>
               ) : (
                 forumDiscussions.map((discussion: any) => (
-                  <Card key={discussion.id}>
-                    <CardHeader>
-                      <CardTitle>{discussion.title}</CardTitle>
-                      <CardDescription>{discussion.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Avatar>
-                          <AvatarImage src={discussion.userAvatar || "/placeholder-user.jpg"} />
-                          <AvatarFallback>{discussion.userInitials}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{discussion.userName}</p>
-                          <p className="text-muted-foreground text-sm">{discussion.timestamp}</p>
-                        </div>
-                      </div>
-                      <p>{discussion.content}</p>
-                    </CardContent>
-                    <CardFooter>
-                      <div className="flex items-center space-x-2">
-                        <Button variant="ghost" size="icon">
-                          <MessageCircleIcon className="h-5 w-5" />
-                        </Button>
-                        <Button variant="ghost" size="icon">
-                          <HeartIcon className="h-5 w-5" />
-                        </Button>
-                        <Button variant="ghost" size="icon">
-                          <ShareIcon className="h-5 w-5" />
-                        </Button>
-                      </div>
-                    </CardFooter>
-                  </Card>
+                  <DiscussionCard
+                    key={discussion.id} 
+                    discussion={discussion} 
+                    userData={userDatas[discussion.authorId]} 
+                  />
                 ))
               )}
             </div>
