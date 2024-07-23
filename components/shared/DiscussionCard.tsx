@@ -12,6 +12,7 @@ import { auth, db } from '@/lib/firebase';
 import { useRouter } from 'next/navigation';
 import { User, onAuthStateChanged } from 'firebase/auth';
 import { toast } from 'react-toastify';
+import TrashIcon from './icons/TrashIcon';
 
 
 const DiscussionCard = ({ discussion, userData, detailsScreen = false }: any) => {
@@ -79,10 +80,24 @@ const DiscussionCard = ({ discussion, userData, detailsScreen = false }: any) =>
         }
     };
 
+    const handleDelete = async () => {
+        if (!user) {
+            return;
+        }
+
+        if (confirm("Are you sure you want to delete this discussion?")) {
+            await updateDoc(doc(db, "forumDiscussions", discussion.id), {
+                isDeleted: true,
+            });
+            toast.success("Discussion deleted successfully!");
+        }
+    };
+
     const likedByUser = discussion.likes.includes(user?.uid!!);
 
     return (
-        <Card>
+        discussion.isDeleted ? null : (
+            <Card>
             <CardHeader>
                 <CardTitle>{discussion.title}</CardTitle>
                 <CardDescription>{discussion.content}</CardDescription>
@@ -128,9 +143,15 @@ const DiscussionCard = ({ discussion, userData, detailsScreen = false }: any) =>
                     <Button variant="ghost" size="icon" onClick={handleShare}>
                         <ShareIcon className="h-5 w-5" />
                     </Button>
+                    {user && user.uid === discussion.authorId && (
+                        <Button variant="ghost" size="icon" onClick={handleDelete}>
+                            <TrashIcon className="h-5 w-5" />
+                        </Button>
+                    )}
                 </div>
             </CardFooter>
         </Card>
+        )
     );
 };
 

@@ -43,7 +43,9 @@ export function ForumComponent() {
           id: doc.id,
           ...doc.data(),
         }));
-        setDiscussions(discussionList as any);
+        // filter where isDeleted is false
+        setDiscussions(discussionList as any)
+
         
         // Fetch user data for each discussion
         const userDataPromises = discussionList.map((discussion: any) => fetchUserData(discussion.authorId));
@@ -68,6 +70,7 @@ export function ForumComponent() {
         content,
         authorId: user.uid,
         likes: [],
+        isDeleted: false,
         createdAt: serverTimestamp(),
       });
       toast.success("Discussion posted successfully!");
