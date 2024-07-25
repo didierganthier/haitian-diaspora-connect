@@ -85,6 +85,12 @@ export function CrowdFundingComponent() {
       toast.error("Failed to start campaign. Please try again.");
     }
   };
+  
+  const scrollToNewDiscussion = () => {
+    if (newCampaignRef.current) {
+      newCampaignRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
 
   return (
     <div className="flex min-h-screen flex-col">
