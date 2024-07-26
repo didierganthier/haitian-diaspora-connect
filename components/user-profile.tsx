@@ -1,14 +1,47 @@
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
-import MenuIcon from "./shared/icons/MenuIcon"
 import Navbar from "./shared/Navbar"
-import useAuthState from "@/app/hooks/useAuthState"
 import Initials from "./shared/Initials"
+import { useEffect, useState } from "react"
+import { collection, query, where, getDocs } from "firebase/firestore"
+import { db } from "@/lib/firebase"
+import Footer from "./shared/Footer"
+import useAuthState from "@/app/hooks/useAuthState"
 
 export function UserProfile() {
-
   const user = useAuthState();
+  const [contributions, setContributions] = useState<any>([]);
+
+  useEffect(() => {
+    const fetchContributions = async () => {
+      if (user) {
+        const forumDiscussionsQuery = query(collection(db, "forumDiscussions"), where("authorId", "==", user.uid));
+        const crowdfundingCampaignsQuery = query(collection(db, "crowdfundingCampaigns"), where("authorId", "==", user.uid));
+
+        const [forumDiscussionsSnapshot, crowdfundingCampaignsSnapshot] = await Promise.all([
+          getDocs(forumDiscussionsQuery),
+          getDocs(crowdfundingCampaignsQuery)
+        ]);
+
+        const forumDiscussions = forumDiscussionsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          type: "forumDiscussion",
+          ...doc.data()
+        }));
+
+        const crowdfundingCampaigns = crowdfundingCampaignsSnapshot.docs.map(doc => ({
+          id: doc.id,
+          type: "crowdfundingCampaign",
+          ...doc.data()
+        }));
+
+        setContributions([...forumDiscussions, ...crowdfundingCampaigns]);
+      }
+    };
+
+    fetchContributions();
+  }, [user]);
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -29,11 +62,11 @@ export function UserProfile() {
                   {user && <Avatar className="w-20 h-20">
                     <AvatarImage src={user.profilePicture ?? 'https://api.dicebear.com/8.x/bottts/svg?seed=ZGlkaWVyZ2FudGhpZXJwZXJhbkBnbWFpbC5jb20&r=50&size=80'} />
                     <AvatarFallback>
-                      <Initials name={user!.displayName!!} />
+                      <Initials name={user!.displayName!} />
                     </AvatarFallback>
                   </Avatar>}
                   {user && <div>
-                    <h2 className="text-2xl font-bold">{user!.displayName!!}</h2>
+                    <h2 className="text-2xl font-bold">{user!.displayName!}</h2>
                     <p className="text-muted-foreground">{user!.email}</p>
                   </div>}
                 </div>
@@ -50,27 +83,21 @@ export function UserProfile() {
                 <div>
                   <h3 className="text-lg font-medium mb-4">My Contributions</h3>
                   <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium">Haitian Cuisine Recipe</h4>
-                        <p className="text-muted-foreground text-sm">Posted 2 days ago</p>
-                      </div>
-                      <Button variant="outline">View</Button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium">Crowdfunding Campaign</h4>
-                        <p className="text-muted-foreground text-sm">Contributed 1 week ago</p>
-                      </div>
-                      <Button variant="outline">View</Button>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <h4 className="font-medium">Forum Discussion</h4>
-                        <p className="text-muted-foreground text-sm">Posted 3 days ago</p>
-                      </div>
-                      <Button variant="outline">View</Button>
-                    </div>
+                    {contributions.length > 0 ? (
+                      contributions.map((contribution: any) => (
+                        <div key={contribution.id} className="flex items-center justify-between">
+                          <div>
+                            <h4 className="font-medium">{contribution.title}</h4>
+                            <p className="text-muted-foreground text-sm">Posted {new Date(contribution.createdAt.seconds * 1000).toLocaleDateString()}</p>
+                          </div>
+                          <Link href={`/${contribution.type}/${contribution.id}`}>
+                            <Button variant="outline">View</Button>
+                          </Link>
+                        </div>
+                      ))
+                    ) : (
+                      <p>No contributions yet.</p>
+                    )}
                   </div>
                 </div>
               </div>
@@ -78,22 +105,7 @@ export function UserProfile() {
           </div>
         </section>
       </main>
-      <footer className="bg-primary text-primary-foreground py-6 px-6">
-        <div className="container mx-auto flex items-center justify-between">
-          <p className="text-sm">&copy; 2023 Haitian Diaspora Connect</p>
-          <div className="flex items-center space-x-4">
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Privacy
-            </Link>
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Terms
-            </Link>
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Contact
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   )
 }
