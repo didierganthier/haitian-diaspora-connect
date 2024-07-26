@@ -4,13 +4,16 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import Navbar from "./shared/Navbar"
 import Initials from "./shared/Initials"
 import { useEffect, useState } from "react"
-import { collection, query, where, getDocs } from "firebase/firestore"
+import { collection, query, where, getDocs, getDoc, doc } from "firebase/firestore"
 import { db } from "@/lib/firebase"
 import Footer from "./shared/Footer"
 import useAuthState from "@/app/hooks/useAuthState"
+import { useRouter } from "next/navigation"
+import fetchCurrentUserAbout from "@/helpers/fetchCurrentUserAbout"
 
 export function UserProfile() {
   const user = useAuthState();
+  const router = useRouter();
   const [contributions, setContributions] = useState<any>([]);
 
   useEffect(() => {
@@ -43,6 +46,8 @@ export function UserProfile() {
     fetchContributions();
   }, [user]);
 
+
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
@@ -54,7 +59,7 @@ export function UserProfile() {
                 <h1 className="text-3xl font-bold">My Profile</h1>
                 <p className="text-muted-foreground">View and update your account information.</p>
               </div>
-              <Button variant="secondary">Edit Profile</Button>
+              <Button variant="secondary" onClick={() => router.push('profile/edit')}>Edit Profile</Button>
             </div>
             <div className="bg-background rounded-lg shadow p-6">
               <div className="grid gap-8">
@@ -73,11 +78,9 @@ export function UserProfile() {
                 <div>
                   <h3 className="text-lg font-medium mb-4">About Me</h3>
                   <div className="prose">
-                    <p>
-                      I am a proud member of the Haitian diaspora, passionate about connecting with my roots and
-                      supporting my community. I enjoy exploring Haitian cuisine, attending cultural events, and
-                      engaging in discussions about the challenges and opportunities facing Haitians around the world.
-                    </p>
+                    {user && <p>
+                      {fetchCurrentUserAbout(user.uid)}
+                    </p>}
                   </div>
                 </div>
                 <div>

@@ -36,6 +36,10 @@ export function JoinComponent() {
         uid: user.uid,
         name: name,
         email: user.email,
+        about: 'Hey there! I am using Haitian Diaspora Connect.',
+        tags: [],
+        followers: [],
+        following: [],
         profilePicture: user.photoURL || getAvatarUrl(user.email!!),
         verified: false,
       });
