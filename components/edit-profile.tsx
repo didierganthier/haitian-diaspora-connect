@@ -9,7 +9,7 @@ import Navbar from "./shared/Navbar";
 import Footer from "./shared/Footer";
 import { auth, db } from "@/lib/firebase";
 import { doc, getDoc, updateDoc } from "firebase/firestore";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, updateProfile } from "firebase/auth";
 import { toast } from "react-toastify";
 import e from "express";
 import useAuthState from "@/app/hooks/useAuthState";
@@ -20,10 +20,9 @@ import fetchUserData from "@/utils/fetchUserData";
 export function EditProfile() {
   const user = useAuthState();
   const [profile, setProfile] = useState({
-    firstName: "",
-    lastName: "",
+    name: "",
     email: "",
-    bio: "ds",
+    about: "",
   });
 
   const router = useRouter();
@@ -33,10 +32,9 @@ export function EditProfile() {
       if (user) {
         fetchUserProfile(user.uid);
         setProfile({
-          firstName: user!.displayName!!.split(" ")[0] || "",
-          lastName: user!.displayName!!.split(" ")[1] || "",
+          ...profile,
+          name: user!.displayName!,
           email: user.email || "",
-          bio: "",
         });
       } else {
         router.push("/login"); // Redirect to login if not authenticated
@@ -45,6 +43,17 @@ export function EditProfile() {
 
     return () => unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (user) {
+      fetchCurrentUserAbout(user.uid).then((about) => {
+        setProfile((prevProfile) => ({
+          ...prevProfile,
+          about: about,
+        }));
+      });
+    }
+  }, [user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -61,6 +70,10 @@ export function EditProfile() {
       try {
         const userDoc = doc(db, "users", user.uid);
         await updateDoc(userDoc, profile);
+        // Must also update the current user in Firebase Auth
+        await updateProfile(auth.currentUser!!, {
+          displayName: `${profile.name}`,
+        });
         toast.success("Profile updated successfully!");
       } catch (error) {
         console.error("Error updating profile:", error);
@@ -85,18 +98,10 @@ export function EditProfile() {
               <form className="grid gap-6" onSubmit={handleSubmit}>
                 <div className="grid grid-cols-2 gap-6">
                   <div>
-                    <Label htmlFor="firstName">First Name</Label>
+                    <Label htmlFor="name">First Name</Label>
                     <Input
-                      id="firstName"
-                      value={profile.firstName}
-                      onChange={handleChange}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="lastName">Last Name</Label>
-                    <Input
-                      id="lastName"
-                      value={profile.lastName}
+                      id="name"
+                      value={profile.name}
                       onChange={handleChange}
                     />
                   </div>
@@ -112,10 +117,10 @@ export function EditProfile() {
                   />
                 </div>
                 <div>
-                  <Label htmlFor="bio">About</Label>
+                  <Label htmlFor="about">About</Label>
                   <Textarea
-                    id="bio"
-                    value={profile.bio}
+                    id="about"
+                    value={profile.about}
                     onChange={handleChange}
                   />
                 </div>

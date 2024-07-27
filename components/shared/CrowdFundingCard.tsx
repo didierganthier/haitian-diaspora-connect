@@ -24,12 +24,12 @@ const CrowdfundingCard = ({ campaign, userData }: any) => {
                             </AvatarFallback>
                         )}
                     </Avatar>
-                    <div>
-                        <p className="font-medium">{campaign.authorName}</p>
+                    {userData && <div>
+                        <p className="font-medium">{userData.name}</p>
                         {campaign.createdAt && (
                             <TimeAgo date={campaign.createdAt.toDate()} />
                         )}
-                    </div>
+                    </div>}
                 </div>
                 <p>{campaign.content}</p>
                 <div className="mt-4">
