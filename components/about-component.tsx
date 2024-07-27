@@ -55,7 +55,7 @@ export function AboutComponent() {
             </div>
             <div>
               <img
-                src="/placeholder.svg"
+                src="/about-page.jpeg"
                 alt="Haitian Diaspora"
                 width={600}
                 height={400}

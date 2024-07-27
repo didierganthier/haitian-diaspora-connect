@@ -12,6 +12,7 @@ import { db } from "@/lib/firebase"; // Adjust the path as necessary
 import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import DiscussionCard from './shared/DiscussionCard';
 import fetchUserData from '@/utils/fetchUserData';
+import CrowdfundingCard from './shared/CrowdFundingCard';
 
 export function HaitianDiasporaConnect() {
   const [forumDiscussions, setForumDiscussions] = useState([]);
@@ -28,7 +29,7 @@ export function HaitianDiasporaConnect() {
     };
 
     const fetchCrowdfundingInitiatives = async () => {
-      const crowdfundingCollection = collection(db, "crowdfundingInitiatives");
+      const crowdfundingCollection = collection(db, "crowdfundingCampaigns");
       const crowdfundingSnapshot = await getDocs(crowdfundingCollection);
       const crowdfundingList = crowdfundingSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
       setCrowdfundingInitiatives(crowdfundingList as any);
@@ -123,37 +124,7 @@ export function HaitianDiasporaConnect() {
                 <p>No crowdfunding initiatives available</p>
               ) : (
                 crowdfundingInitiatives.map((initiative: any ) => (
-                  <Card key={initiative.id}>
-                    <CardHeader>
-                      <CardTitle>{initiative.title}</CardTitle>
-                      <CardDescription>{initiative.description}</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                      <div className="flex items-center space-x-2 mb-2">
-                        <Avatar>
-                          <AvatarImage src={initiative.userAvatar || "/placeholder-user.jpg"} />
-                          <AvatarFallback>{initiative.userInitials}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium">{initiative.userName}</p>
-                          <p className="text-muted-foreground text-sm">{initiative.timestamp}</p>
-                        </div>
-                      </div>
-                      <div className="mb-4">
-                        <div className="h-2 bg-muted rounded-full overflow-hidden">
-                          <div className="h-full bg-primary rounded-full" style={{ width: initiative.progress }} />
-                        </div>
-                        <div className="flex justify-between text-sm text-muted-foreground">
-                          <span>{initiative.amountRaised} raised</span>
-                          <span>{initiative.goal} goal</span>
-                        </div>
-                      </div>
-                      <p>{initiative.content}</p>
-                    </CardContent>
-                    <CardFooter>
-                      <Button>Contribute</Button>
-                    </CardFooter>
-                  </Card>
+                  <CrowdfundingCard key={initiative.id} campaign={initiative} userData={userDatas[initiative.authorId]} />
                 ))
               )}
             </div>
