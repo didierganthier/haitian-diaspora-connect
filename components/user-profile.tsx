@@ -1,3 +1,4 @@
+"use client";
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
@@ -10,17 +11,27 @@ import Footer from "./shared/Footer"
 import useAuthState from "@/app/hooks/useAuthState"
 import { useRouter } from "next/navigation"
 import fetchCurrentUserAbout from "@/helpers/fetchCurrentUserAbout"
+import { toast } from "react-toastify";
 
 export function UserProfile() {
   const user = useAuthState();
   const router = useRouter();
   const [contributions, setContributions] = useState<any>([]);
+  const [userAbout, setUserAbout] = useState("");
+
+  useEffect(() => {
+    if (user) {
+      fetchCurrentUserAbout(user.uid).then((about) => {
+        setUserAbout(about);
+      });
+    } 
+  }, [user]);
 
   useEffect(() => {
     const fetchContributions = async () => {
       if (user) {
-        const forumDiscussionsQuery = query(collection(db, "forumDiscussions"), where("authorId", "==", user.uid));
-        const crowdfundingCampaignsQuery = query(collection(db, "crowdfundingCampaigns"), where("authorId", "==", user.uid));
+        const forumDiscussionsQuery = query(collection(db, "forumDiscussions"), where("authorId", "==", user.uid), where("isDeleted", "==", false));
+        const crowdfundingCampaignsQuery = query(collection(db, "crowdfundingCampaigns"), where("authorId", "==", user.uid), where("isDeleted", "==", false));
 
         const [forumDiscussionsSnapshot, crowdfundingCampaignsSnapshot] = await Promise.all([
           getDocs(forumDiscussionsQuery),
@@ -46,7 +57,13 @@ export function UserProfile() {
     fetchContributions();
   }, [user]);
 
-
+  const formatContributionType = (type: string) => {
+    if (type === "forumDiscussion") {
+      return "forum";
+    } else if (type === "crowdfundingCampaign") {
+      return "crowdfunding";
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -79,7 +96,7 @@ export function UserProfile() {
                   <h3 className="text-lg font-medium mb-4">About Me</h3>
                   <div className="prose">
                     {user && <p>
-                      {fetchCurrentUserAbout(user.uid)}
+                      {userAbout}
                     </p>}
                   </div>
                 </div>
@@ -93,7 +110,7 @@ export function UserProfile() {
                             <h4 className="font-medium">{contribution.title}</h4>
                             <p className="text-muted-foreground text-sm">Posted {new Date(contribution.createdAt.seconds * 1000).toLocaleDateString()}</p>
                           </div>
-                          <Link href={`/${contribution.type}/${contribution.id}`}>
+                          <Link href={`/${formatContributionType(contribution.type)}/${contribution.id}`}>
                             <Button variant="outline">View</Button>
                           </Link>
                         </div>
