@@ -11,6 +11,7 @@ import { toast } from "react-toastify";
 import { useRouter } from "next/navigation";
 import { profile } from "console";
 import getAvatarUrl from "@/helpers/getAvatarUrl";
+import Footer from "./shared/Footer";
 
 export function JoinComponent() {
   const [name, setName] = useState("");
@@ -21,6 +22,13 @@ export function JoinComponent() {
 
   // router
   const router = useRouter();
+
+  // if user exists redirect to home
+  auth.onAuthStateChanged((user) => {
+    if (user) {
+      router.push("/");
+    }
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -96,22 +104,7 @@ export function JoinComponent() {
           </div>
         </section>
       </main>
-      <footer className="bg-primary text-primary-foreground py-6 px-6">
-        <div className="container mx-auto flex items-center justify-between">
-          <p className="text-sm">&copy; 2023 Haitian Diaspora Connect</p>
-          <div className="flex items-center space-x-4">
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Privacy
-            </Link>
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Terms
-            </Link>
-            <Link href="#" className="hover:underline" prefetch={false}>
-              Contact
-            </Link>
-          </div>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }
