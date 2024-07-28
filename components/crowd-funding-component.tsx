@@ -48,8 +48,10 @@ export function CrowdFundingComponent() {
           id: doc.id,
           ...doc.data(),
         }));
+
+        const filteredCampaigns = campaignList.filter((campaign: any) => !campaign.isDeleted);
         
-        setCampaigns(campaignList as any);
+        setCampaigns(filteredCampaigns as any);
 
         const userDataPromises = campaignList.map((campaign: any) => fetchUserData(campaign.authorId));
         const userDataResults = await Promise.all(userDataPromises);
