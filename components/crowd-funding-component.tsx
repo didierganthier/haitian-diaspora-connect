@@ -27,6 +27,7 @@ export function CrowdFundingComponent() {
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
   const newCampaignRef = useRef<HTMLDivElement>(null);
+  const exploreCampaignsRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -88,11 +89,17 @@ export function CrowdFundingComponent() {
     }
   };
   
-  const scrollToNewDiscussion = () => {
+  const scrollToNewCampaign = () => {
     if (newCampaignRef.current) {
       newCampaignRef.current.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  const scrollToExploreCampaigns = () => {
+    if (exploreCampaignsRef.current) {
+      exploreCampaignsRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -107,8 +114,8 @@ export function CrowdFundingComponent() {
                 that matter to you and the Haitian community.
               </p>
               <div className="flex space-x-4">
-                <Button>Start a Campaign</Button>
-                <Button variant="secondary">Explore Campaigns</Button>
+                <Button onClick={scrollToNewCampaign}>Start a Campaign</Button>
+                <Button variant="secondary" onClick={scrollToExploreCampaigns}>Explore Campaigns</Button>
               </div>
             </div>
             <div>
@@ -123,7 +130,7 @@ export function CrowdFundingComponent() {
           </div>
         </section>
         <section className="py-12 px-6">
-          <div className="container mx-auto">
+          <div className="container mx-auto" ref={exploreCampaignsRef}>
             <h2 className="text-2xl font-bold mb-6">Featured Campaigns</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {campaigns.length > 0 ? (
@@ -141,7 +148,7 @@ export function CrowdFundingComponent() {
             <h2 className="text-2xl font-bold mb-6">Start a New Campaign</h2>
             <div className="max-w-2xl mx-auto">
               <form className="space-y-4" onSubmit={handlePostCampaign}>
-                <div>
+                <div ref={newCampaignRef}>
                   <Label htmlFor="title">Campaign Title</Label>
                   <Input id="title" placeholder="Enter a title for your campaign" value={title} onChange={(e) => setTitle(e.target.value)} />
                 </div>

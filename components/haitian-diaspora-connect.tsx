@@ -13,12 +13,15 @@ import { collection, getDocs, onSnapshot } from "firebase/firestore";
 import DiscussionCard from './shared/DiscussionCard';
 import fetchUserData from '@/utils/fetchUserData';
 import CrowdfundingCard from './shared/CrowdFundingCard';
+import { useRouter } from 'next/navigation';
 
 export function HaitianDiasporaConnect() {
   const [forumDiscussions, setForumDiscussions] = useState([]);
   const [crowdfundingInitiatives, setCrowdfundingInitiatives] = useState([]);
   const [userDatas, setUserDatas] = useState<any>({});
   const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
  
   useEffect(() => {
     const fetchForumDiscussions = async () => {
@@ -64,6 +67,14 @@ export function HaitianDiasporaConnect() {
     };
     fetchDiscussions();
   }, []);
+
+  const handleJoinForum = () => {
+    router.push("/forum");
+  }
+
+  const handleStartFundraiser = () => {
+    router.push("/crowdfunding");
+  }
   
 
   return (
@@ -79,8 +90,8 @@ export function HaitianDiasporaConnect() {
                 work together to support your community.
               </p>
               <div className="flex space-x-4">
-                <Button>Join the Forum</Button>
-                <Button variant="secondary">Start a Fundraiser</Button>
+                <Button onClick={handleJoinForum}>Join the Forum</Button>
+                <Button variant="secondary" onClick={handleStartFundraiser}>Start a Fundraiser</Button>
               </div>
             </div>
             <div>

@@ -87,6 +87,10 @@ export function ForumComponent() {
     }
   };
 
+  const handleStartFundraiser = () => {
+    router.push("/crowdfunding");
+  }
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
@@ -100,7 +104,7 @@ export function ForumComponent() {
               </p>
               <div className="flex space-x-4">
                 <Button onClick={scrollToNewDiscussion}>Join the Forum</Button>
-                <Button variant="secondary">Start a Fundraiser</Button>
+                <Button variant="secondary" onClick={handleStartFundraiser}>Start a Fundraiser</Button>
               </div>
             </div>
             <div>
