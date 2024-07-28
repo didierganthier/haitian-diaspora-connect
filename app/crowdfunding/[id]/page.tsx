@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { auth, db } from "@/lib/firebase";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { User, onAuthStateChanged } from "firebase/auth";
 import { toast } from "react-toastify";
 import fetchUserData from "@/utils/fetchUserData";
@@ -29,6 +29,8 @@ export default function CrowdfundingPage() {
     const [userData, setUserData] = useState<any>(null);
     const params = useParams();
     const id = params.id;
+
+    const router = useRouter();
 
     useEffect(() => {
         const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -91,6 +93,7 @@ export default function CrowdfundingPage() {
             setContributionAmount("");
         } else {
             toast.error("You must be logged in and enter a valid amount to contribute");
+            router.push("/sign-in");
         }
     };
 
