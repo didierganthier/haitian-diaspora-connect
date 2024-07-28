@@ -82,17 +82,25 @@ export default function CrowdfundingPage() {
 
     const handlePostContribution = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (currentUser && contributionAmount) {
-            await addDoc(collection(db, "crowdfundingCampaigns", id as string, "contributions"), {
-                amount: parseFloat(contributionAmount),
-                contributorId: (currentUser as User).uid,
-                isDeleted: false,
-                createdAt: serverTimestamp(),
-            });
-            toast.success("Contribution posted successfully!");
+        if (currentUser) {
+            if (!contributionAmount || isNaN(parseFloat(contributionAmount))) {
+                toast.error("You must enter a valid amount to contribute");
+                return;
+            }
+            try {
+                await addDoc(collection(db, "crowdfundingCampaigns", id as string, "contributions"), {
+                    amount: parseFloat(contributionAmount),
+                    contributorId: (currentUser as User).uid,
+                    isDeleted: false,
+                    createdAt: serverTimestamp(),
+                });
+                toast.success("Contribution posted successfully!");
+            } catch (error) {
+                toast.error("Failed to post contribution. Please try again.");
+            }
             setContributionAmount("");
         } else {
-            toast.error("You must be logged in and enter a valid amount to contribute");
+            toast.error("You must be logged in to contribute");
             router.push("/sign-in");
         }
     };
