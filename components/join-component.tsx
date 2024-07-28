@@ -100,6 +100,12 @@ export function JoinComponent() {
               <Button type="submit" className="w-full">
                 {loading ? "Granting Access..." : "Join"}
               </Button>
+              <p className="text-center text-muted-foreground mt-4">
+                Already have an account?{" "}
+                <Link href="/sign-in">
+                  <a className="text-primary">Sign in</a>
+                </Link>
+              </p>
             </form>
           </div>
         </section>

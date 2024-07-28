@@ -9,6 +9,7 @@ import { signInWithEmailAndPassword, sendEmailVerification } from "firebase/auth
 import { toast } from "react-toastify";
 import Navbar from "@/components/shared/Navbar";
 import { useRouter } from "next/navigation";
+import Footer from "@/components/shared/Footer";
 
 const SignInComponent = () => {
     const [email, setEmail] = useState("");
@@ -66,26 +67,17 @@ const SignInComponent = () => {
                             <Button type="submit" className="w-full">
                                 {loading ? "Signing In..." : "Sign In"}
                             </Button>
+                            <p className="text-center text-muted-foreground mt-4">
+                                Don&apos;t have an account?{" "}
+                                <Link href="/join">
+                                    <a className="text-primary">Join now</a>
+                                </Link>
+                            </p>
                         </form>
                     </div>
                 </section>
             </main>
-            <footer className="bg-primary text-primary-foreground py-6 px-6">
-                <div className="container mx-auto flex items-center justify-between">
-                    <p className="text-sm">&copy; 2023 Haitian Diaspora Connect</p>
-                    <div className="flex items-center space-x-4">
-                        <Link href="#" className="hover:underline" prefetch={false}>
-                            Privacy
-                        </Link>
-                        <Link href="#" className="hover:underline" prefetch={false}>
-                            Terms
-                        </Link>
-                        <Link href="#" className="hover:underline" prefetch={false}>
-                            Contact
-                        </Link>
-                    </div>
-                </div>
-            </footer>
+            <Footer />
         </div>
     );
 }
