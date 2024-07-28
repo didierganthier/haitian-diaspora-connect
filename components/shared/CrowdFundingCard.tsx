@@ -1,4 +1,5 @@
 "use client";
+import { useRouter } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "../ui/card";
@@ -7,6 +8,11 @@ import TimeAgo from "./Timeago";
 import ShareIcon from "./icons/ShareIcon";
 
 const CrowdfundingCard = ({ campaign, userData }: any) => {
+    const router = useRouter();
+
+    const handleDonate = () => {
+        router.push(`/crowdfunding/${campaign.id}`);
+    }
     return (
         <Card>
             <CardHeader>
@@ -44,7 +50,7 @@ const CrowdfundingCard = ({ campaign, userData }: any) => {
             </CardContent>
             <CardFooter>
                 <div className="flex items-center space-x-2">
-                    <Button onClick={() => console.log(userData)}>Donate</Button>
+                    <Button onClick={handleDonate}>Donate</Button>
                     <Button variant="ghost" size="icon">
                         <ShareIcon className="h-5 w-5" />
                     </Button>
