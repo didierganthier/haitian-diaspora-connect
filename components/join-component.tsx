@@ -103,7 +103,7 @@ export function JoinComponent() {
               <p className="text-center text-muted-foreground mt-4">
                 Already have an account?{" "}
                 <Link href="/sign-in">
-                  <a className="text-primary">Sign in</a>
+                  <p className="text-primary">Sign in</p>
                 </Link>
               </p>
             </form>

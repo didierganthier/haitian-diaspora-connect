@@ -70,7 +70,7 @@ const SignInComponent = () => {
                             <p className="text-center text-muted-foreground mt-4">
                                 Don&apos;t have an account?{" "}
                                 <Link href="/join">
-                                    <a className="text-primary">Join now</a>
+                                    <p className="text-primary">Join now</p>
                                 </Link>
                             </p>
                         </form>

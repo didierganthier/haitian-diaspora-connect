@@ -13,6 +13,7 @@ const CrowdfundingCard = ({ campaign, userData }: any) => {
     const handleDonate = () => {
         router.push(`/crowdfunding/${campaign.id}`);
     }
+
     return (
         <Card>
             <CardHeader>
@@ -20,6 +21,11 @@ const CrowdfundingCard = ({ campaign, userData }: any) => {
                 <CardDescription>{campaign.description}</CardDescription>
             </CardHeader>
             <CardContent>
+                {campaign.image && (
+                    <div className="mb-4">
+                        <img src={campaign.image} alt={campaign.title} className="w-full h-auto rounded-lg" />
+                    </div>
+                )}
                 <div className="flex items-center space-x-2 mb-2">
                     <Avatar>
                         {userData ? (
@@ -30,12 +36,14 @@ const CrowdfundingCard = ({ campaign, userData }: any) => {
                             </AvatarFallback>
                         )}
                     </Avatar>
-                    {userData && <div>
-                        <p className="font-medium">{userData.name}</p>
-                        {campaign.createdAt && (
-                            <TimeAgo date={campaign.createdAt.toDate()} />
-                        )}
-                    </div>}
+                    {userData && (
+                        <div>
+                            <p className="font-medium">{userData.name}</p>
+                            {campaign.createdAt && (
+                                <TimeAgo date={campaign.createdAt.toDate()} />
+                            )}
+                        </div>
+                    )}
                 </div>
                 <p>{campaign.content}</p>
                 <div className="mt-4">

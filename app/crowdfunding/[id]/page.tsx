@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { doc, getDoc, addDoc, collection, onSnapshot, serverTimestamp } from "firebase/firestore";
+import { doc, getDoc, addDoc, collection, onSnapshot, serverTimestamp, updateDoc } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -92,7 +92,11 @@ export default function CrowdfundingPage() {
                     amount: parseFloat(contributionAmount),
                     contributorId: (currentUser as User).uid,
                     isDeleted: false,
+                    authorId: campaign.authorId,
                     createdAt: serverTimestamp(),
+                });
+                await updateDoc(doc(db, "crowdfundingCampaigns", id as string), {
+                    raised: campaign.raised + parseFloat(contributionAmount),
                 });
                 toast.success("Contribution posted successfully!");
             } catch (error) {
