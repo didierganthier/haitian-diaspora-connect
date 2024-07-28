@@ -57,7 +57,8 @@ export default function DiscussionPage() {
                         id: doc.id,
                         ...doc.data(),
                     }));
-                    setComments(commentList as any);
+                    const filteredComments = commentList.filter((comment: any) => !comment.isDeleted);
+                    setComments(filteredComments as any);
                 });
             };
 
