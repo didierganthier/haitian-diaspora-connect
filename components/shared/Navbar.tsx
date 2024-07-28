@@ -3,12 +3,15 @@ import React, { useEffect, useState } from 'react';
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import MenuIcon from './icons/MenuIcon';
-import { auth } from "@/lib/firebase"; // Adjust the path as necessary
+
+import { auth } from "@/lib/firebase";
 import { onAuthStateChanged } from "firebase/auth";
 import getAvatarUrl from '@/helpers/getAvatarUrl';
+import XIcon from './icons/XIcon';
 
 const Navbar = () => {
   const [user, setUser] = useState(null as any);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -22,6 +25,9 @@ const Navbar = () => {
     return () => unsubscribe();
   }, []);
 
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
+  };
 
   return (
     <header className="bg-primary text-primary-foreground py-4 px-6 shadow">
@@ -57,14 +63,46 @@ const Navbar = () => {
                   className="w-8 h-8 rounded-full"
                 />
               </Link>
-              {/* <span>{user.displayName || user.email}</span> */}
             </div>
           )}
         </nav>
-        <Button variant="default" className="md:hidden">
-          <MenuIcon className="h-6 w-6" />
+        <Button variant="default" className="md:hidden" onClick={toggleMenu}>
+          {menuOpen ? <XIcon className="h-6 w-6" /> : <MenuIcon className="h-6 w-6" />}
         </Button>
       </div>
+      {menuOpen && (
+        <nav className="md:hidden mt-4 space-y-2">
+          <Link href="/forum" className="block px-4 py-2 hover:bg-gray-100" prefetch={false}>
+            Forum
+          </Link>
+          <Link href="/crowdfunding" className="block px-4 py-2 hover:bg-gray-100" prefetch={false}>
+            Crowdfunding
+          </Link>
+          <Link href="/about" className="block px-4 py-2 hover:bg-gray-100" prefetch={false}>
+            About
+          </Link>
+          <Link href="/contact" className="block px-4 py-2 hover:bg-gray-100" prefetch={false}>
+            Contact
+          </Link>
+          {!user ? (
+            <Link href="/join" className="block px-4 py-2 hover:bg-gray-100" prefetch={false}>
+              <Button variant="secondary" className="w-full">
+                Join
+              </Button>
+            </Link>
+          ) : (
+            <div className="flex items-center space-x-4 px-4 py-2">
+              <Link href="/profile" className="hover:underline" prefetch={false}>
+                <img
+                  src={getAvatarUrl(user.email)}
+                  alt="User Avatar"
+                  className="w-8 h-8 rounded-full"
+                />
+              </Link>
+            </div>
+          )}
+        </nav>
+      )}
     </header>
   );
 };
