@@ -1,6 +1,7 @@
 "use client";
 import React, { useEffect, useRef, useState } from 'react';
-import { collection, getDocs, addDoc, serverTimestamp, onSnapshot } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, onSnapshot } from "firebase/firestore";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -9,10 +10,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import Navbar from "./shared/Navbar";
 import ShareIcon from "./shared/icons/ShareIcon";
-import { auth, db } from "@/lib/firebase"; // Ensure your Firebase config and initialization are correct
+import { auth, db, storage } from "@/lib/firebase"; // Ensure your Firebase config and initialization are correct
 import { toast } from "react-toastify";
 import CrowdfundingCard from './shared/CrowdFundingCard';
-import Link from 'next/link';
 import Footer from './shared/Footer';
 import { useRouter } from 'next/navigation';
 import { onAuthStateChanged } from 'firebase/auth';
@@ -23,6 +23,8 @@ export function CrowdFundingComponent() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [goal, setGoal] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [userDatas, setUserDatas] = useState<any>({});
   const [user, setUser] = useState<any>(null);
   const router = useRouter();
@@ -68,14 +70,26 @@ export function CrowdFundingComponent() {
     fetchCampaigns();
   }, []);
 
+  const handleImageUpload = async (file: File) => {
+    const storageRef = ref(storage, `images/${file.name}`);
+    const snapshot = await uploadBytes(storageRef, file);
+    const downloadURL = await getDownloadURL(snapshot.ref);
+    return downloadURL;
+  };
+
   const handlePostCampaign = async (e: React.FormEvent) => {
     e.preventDefault();
+    let finalImageUrl = imageUrl;
     try {
+      if (imageFile) {
+        finalImageUrl = await handleImageUpload(imageFile);
+      }
       await addDoc(collection(db, "crowdfundingCampaigns"), {
         title,
         description,
         goal: Number(goal),
         raised: 0,
+        image: finalImageUrl, // Add the image URL to the campaign data
         authorId: user.uid,
         isDeleted: false,
         createdAt: serverTimestamp(),
@@ -84,6 +98,8 @@ export function CrowdFundingComponent() {
       setTitle("");
       setDescription("");
       setGoal("");
+      setImageUrl("");
+      setImageFile(null);
     } catch (error) {
       toast.error("Failed to start campaign. Please try again.");
     }
@@ -159,6 +175,14 @@ export function CrowdFundingComponent() {
                 <div>
                   <Label htmlFor="goal">Funding Goal</Label>
                   <Input id="goal" type="number" placeholder="Enter your funding goal" value={goal} onChange={(e) => setGoal(e.target.value)} />
+                </div>
+                <div>
+                  <Label htmlFor="imageUrl">Image URL</Label>
+                  <Input id="imageUrl" placeholder="Enter the URL of an image for your campaign" value={imageUrl} onChange={(e) => setImageUrl(e.target.value)} />
+                </div>
+                <div>
+                  <Label htmlFor="imageFile">Upload Image</Label>
+                  <Input id="imageFile" type="file" onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
                 </div>
                 <div className="flex justify-end">
                   <Button type="submit">Start Campaign</Button>
