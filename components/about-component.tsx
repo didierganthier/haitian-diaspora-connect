@@ -27,6 +27,7 @@ import Link from "next/link"
 import { Card, CardHeader, CardContent } from "@/components/ui/card"
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar"
 import Navbar from "./shared/Navbar"
+import TeamCard from "./shared/TeamCard"
 
 export function AboutComponent() {
   return (
@@ -68,48 +69,9 @@ export function AboutComponent() {
           <div className="container mx-auto">
             <h2 className="text-2xl font-bold mb-6">Our Team</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Card>
-                <CardHeader>
-                  <Avatar>
-                    <AvatarImage src="/placeholder-user.jpg" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center">
-                    <h3 className="text-lg font-medium">John Doe</h3>
-                    <p className="text-muted-foreground">Co-Founder and CEO</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <Avatar>
-                    <AvatarImage src="/placeholder-user.jpg" />
-                    <AvatarFallback>ML</AvatarFallback>
-                  </Avatar>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center">
-                    <h3 className="text-lg font-medium">Marie Laguerre</h3>
-                    <p className="text-muted-foreground">Co-Founder and COO</p>
-                  </div>
-                </CardContent>
-              </Card>
-              <Card>
-                <CardHeader>
-                  <Avatar>
-                    <AvatarImage src="/placeholder-user.jpg" />
-                    <AvatarFallback>SA</AvatarFallback>
-                  </Avatar>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center">
-                    <h3 className="text-lg font-medium">Sophia Aurelien</h3>
-                    <p className="text-muted-foreground">Head of Community Engagement</p>
-                  </div>
-                </CardContent>
-              </Card>
+              <TeamCard />
+              <TeamCard />
+              <TeamCard />
             </div>
           </div>
         </section>
