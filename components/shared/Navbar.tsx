@@ -5,13 +5,13 @@ import { Button } from "@/components/ui/button";
 import MenuIcon from './icons/MenuIcon';
 
 import { auth } from "@/lib/firebase";
-import { onAuthStateChanged } from "firebase/auth";
+import { onAuthStateChanged, User } from "firebase/auth";
 import getAvatarUrl from '@/helpers/getAvatarUrl';
 import XIcon from './icons/XIcon';
 import { useRouter } from 'next/navigation';
 
 const Navbar = () => {
-  const [user, setUser] = useState(null as any);
+  const [user, setUser] = useState<User>();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const router = useRouter();
@@ -21,7 +21,7 @@ const Navbar = () => {
       if (user) {
         setUser(user);
       } else {
-        setUser(null);
+        // setUser(null);
         if (window.location.pathname !== "/join" && window.location.pathname !== "/sign-in") {
           router.push("/join");
         }
@@ -64,7 +64,7 @@ const Navbar = () => {
             <div className="flex items-center space-x-4">
               <Link href="/profile" className="hover:underline" prefetch={false}>
                 <img
-                  src={user.photoURL ?? getAvatarUrl(user.email)}
+                  src={user.photoURL ?? getAvatarUrl(user.email ?? "johndoe@gmail.com")}
                   alt="User Avatar"
                   className="w-8 h-8 rounded-full"
                 />
@@ -100,7 +100,7 @@ const Navbar = () => {
             <div className="flex items-center space-x-4 px-4 py-2">
               <Link href="/profile" className="hover:underline" prefetch={false}>
                 <img
-                  src={user.photoURL ?? getAvatarUrl(user.email)}
+                  src={user.photoURL ?? getAvatarUrl(user.email ?? "johndoe@gmail.com")}
                   alt="User Avatar"
                   className="w-8 h-8 rounded-full"
                 />
