@@ -64,7 +64,7 @@ const Navbar = () => {
             <div className="flex items-center space-x-4">
               <Link href="/profile" className="hover:underline" prefetch={false}>
                 <img
-                  src={user.photoURL}
+                  src={user.photoURL ?? getAvatarUrl(user.email)}
                   alt="User Avatar"
                   className="w-8 h-8 rounded-full"
                 />
@@ -100,7 +100,7 @@ const Navbar = () => {
             <div className="flex items-center space-x-4 px-4 py-2">
               <Link href="/profile" className="hover:underline" prefetch={false}>
                 <img
-                  src={user.photoURL}
+                  src={user.photoURL ?? getAvatarUrl(user.email)}
                   alt="User Avatar"
                   className="w-8 h-8 rounded-full"
                 />
