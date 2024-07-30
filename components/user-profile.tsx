@@ -5,19 +5,22 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import Navbar from "./shared/Navbar";
 import Initials from "./shared/Initials";
 import { useEffect, useState } from "react";
-import { collection, query, where, getDocs } from "firebase/firestore";
-import { db } from "@/lib/firebase";
+import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
+import { db, storage } from "@/lib/firebase";
+import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import Footer from "./shared/Footer";
 import useAuthState from "@/app/hooks/useAuthState";
 import { useRouter } from "next/navigation";
 import fetchCurrentUserAbout from "@/helpers/fetchCurrentUserAbout";
 import { toast } from "react-toastify";
+import { updateCurrentUser, updateProfile } from "firebase/auth";
 
 export function UserProfile() {
   const user = useAuthState();
   const router = useRouter();
-  const [contributions, setContributions] = useState<any>([]);
+  const [contributions, setContributions] = useState<any[]>([]);
   const [userAbout, setUserAbout] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -73,6 +76,61 @@ export function UserProfile() {
     }
   };
 
+  const handleLogout = async () => {
+    try {
+      await user.logout();
+      router.push("/");
+    } catch (error) {
+      toast.error("Failed to logout");
+    }
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file && user) {
+      const storageRef = ref(storage, `profilePictures/${user.uid}`);
+      const uploadTask = uploadBytesResumable(storageRef, file);
+
+      setUploading(true);
+
+      uploadTask.on(
+        "state_changed",
+        (snapshot) => {
+          // Handle progress
+        },
+        (error) => {
+          // Handle error
+          setUploading(false);
+          toast.error("Failed to upload profile picture");
+        },
+        () => {
+          getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
+            updateDoc(doc(db, "users", user.uid), {
+              profilePicture: downloadURL
+            }).then(() => {
+              console.log("Profile picture updated successfully in Firestore");
+              updateProfile(user, {
+                photoURL: downloadURL
+              }).then(() => {
+                setUploading(false);
+                console.log("Profile picture updated successfully in Firebase Auth");
+                toast.success("Profile picture updated successfully");
+              }).catch(() => {
+                setUploading(false);
+                console.error("Failed to update profile picture in Firebase Auth");
+                toast.error("Failed to update profile picture in Firebase Auth");
+              });
+            }).catch(() => {
+              setUploading(false);
+              console.error("Failed to update profile picture in Firestore");
+              toast.error("Failed to update profile picture in Firestore");
+            });
+          });
+        }
+      );
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col">
       <Navbar />
@@ -84,25 +142,40 @@ export function UserProfile() {
                 <h1 className="text-3xl font-bold">My Profile</h1>
                 <p className="text-muted-foreground">View and update your account information.</p>
               </div>
-              <Button variant="secondary" onClick={() => router.push('profile/edit')} className="mt-4 md:mt-0">
-                Edit Profile
-              </Button>
+              <div className="flex space-x-4">
+                <Button variant="secondary" onClick={() => router.push("profile/edit")} className="mt-4 md:mt-0">
+                  Edit Profile
+                </Button>
+                <Button variant="destructive" onClick={handleLogout} className="mt-4 md:mt-0">
+                  Logout
+                </Button>
+              </div>
             </div>
             <div className="bg-background rounded-lg shadow p-6">
               <div className="grid gap-8">
                 <div className="flex flex-col sm:flex-row items-center space-x-0 sm:space-x-6 space-y-4 sm:space-y-0">
                   {user && (
-                    <Avatar className="w-20 h-20">
-                      <AvatarImage
-                        src={
-                          user.profilePicture ??
-                          'https://api.dicebear.com/8.x/bottts/svg?seed=ZGlkaWVyZ2FudGhpZXJwZXJhbkBnbWFpbC5jb20&r=50&size=80'
-                        }
+                    <div className="relative">
+                      <Avatar className="w-20 h-20">
+                        <AvatarImage
+                          src={
+                            user.photoURL ??
+                            "https://api.dicebear.com/8.x/bottts/svg?seed=ZGlkaWVyZ2FudGhpZXJwZXJhbkBnbWFpbC5jb20&r=50&size=80"
+                          }
+                        />
+                        <AvatarFallback>
+                          <Initials name={user!.displayName!} />
+                        </AvatarFallback>
+                      </Avatar>
+                      <input
+                        title="Upload Profile Picture"
+                        type="file"
+                        accept="image/*"
+                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        onChange={handleFileChange}
                       />
-                      <AvatarFallback>
-                        <Initials name={user!.displayName!} />
-                      </AvatarFallback>
-                    </Avatar>
+                      {uploading && <div className="absolute inset-0 w-full h-full bg-black bg-opacity-50 flex items-center justify-center">Uploading...</div>}
+                    </div>
                   )}
                   {user && (
                     <div className="text-center sm:text-left">
