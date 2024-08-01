@@ -6,7 +6,7 @@ import Navbar from "./shared/Navbar";
 import Initials from "./shared/Initials";
 import { useEffect, useState } from "react";
 import { collection, query, where, getDocs, doc, updateDoc } from "firebase/firestore";
-import { db, storage } from "@/lib/firebase";
+import { auth, db, storage } from "@/lib/firebase";
 import { getDownloadURL, ref, uploadBytesResumable } from "firebase/storage";
 import Footer from "./shared/Footer";
 import useAuthState from "@/app/hooks/useAuthState";
@@ -21,6 +21,7 @@ export function UserProfile() {
   const [contributions, setContributions] = useState<any[]>([]);
   const [userAbout, setUserAbout] = useState("");
   const [uploading, setUploading] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -78,9 +79,13 @@ export function UserProfile() {
 
   const handleLogout = async () => {
     try {
-      await user.logout();
+      setLoading(true);
+      await auth.signOut();
+      setLoading(false);
       router.push("/");
     } catch (error) {
+      setLoading(false);
+      console.error("Failed to logout", error);
       toast.error("Failed to logout");
     }
   };
@@ -146,8 +151,8 @@ export function UserProfile() {
                 <Button variant="secondary" onClick={() => router.push("profile/edit")} className="mt-4 md:mt-0">
                   Edit Profile
                 </Button>
-                <Button variant="destructive" onClick={handleLogout} className="mt-4 md:mt-0">
-                  Logout
+                <Button variant="destructive" onClick={() => handleLogout()} className="mt-4 md:mt-0">
+                  {loading ? "Logging out..." : "Logout"}
                 </Button>
               </div>
             </div>
