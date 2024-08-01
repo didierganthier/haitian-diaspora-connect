@@ -22,9 +22,9 @@ const Navbar = () => {
         setUser(user);
       } else {
         // setUser(null);
-        if (window.location.pathname !== "/join" && window.location.pathname !== "/sign-in") {
-          router.push("/join");
-        }
+        // if (window.location.pathname !== "/join" && window.location.pathname !== "/sign-in") {
+        //   router.push("/join");
+        // }
       }
     });
 
