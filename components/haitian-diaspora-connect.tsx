@@ -96,7 +96,7 @@ export function HaitianDiasporaConnect() {
             </div>
             <div>
               <img
-                src="/haitian-guy.jpg"
+                src="/haitian-guy-min.jpg"
                 alt="Haitian Community"
                 width={600}
                 height={400}
