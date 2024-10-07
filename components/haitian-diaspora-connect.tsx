@@ -81,7 +81,7 @@ export function HaitianDiasporaConnect() {
     <div className="flex min-h-screen flex-col">
       <Navbar />
       <main className="flex-1">
-        <section className="bg-muted py-12 px-6">
+      <section className="bg-muted py-12 px-6">
           <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-8">
             <div>
               <h1 className="text-3xl font-bold mb-4">Connect with the Haitian Community</h1>
@@ -93,6 +93,21 @@ export function HaitianDiasporaConnect() {
                 <Button onClick={handleJoinForum}>Join the Forum</Button>
                 <Button variant="secondary" onClick={handleStartFundraiser}>Start a Fundraiser</Button>
               </div>
+              <div className="my-6">
+                <p className="text-lg italic">
+                  &quot;Each one must give as he has decided in his heart, not reluctantly or under compulsion, for God loves a cheerful giver.&quot; 
+                  <br /> - 2 Corinthians 9:7
+                </p>
+              </div>
+              <div>
+              <img
+                src="/machann.jpeg"
+                alt="Haitian Community"
+                width={600}
+                height={200}
+                className="rounded-lg object-cover"
+              />
+            </div>
             </div>
             <div>
               <img
